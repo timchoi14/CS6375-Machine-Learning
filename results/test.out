@@ -1,0 +1,159 @@
+hidden size = 10
+========== Loading data ==========
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.513
+Training time for this epoch: 3.6567423343658447
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.513
+Training time for this epoch: 3.6567423343658447
+Validation started for epoch 1
+Validation completed for epoch 1
+Validation accuracy for epoch 1: 0.55875
+Validation time for this epoch: 0.14513254165649414
+====Testing on Test Data ====
+Test accuracy: 0.0025
+Test Time: 0.10509562492370605
+
+hidden size = 100
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.529875
+Training time for this epoch: 39.120521545410156
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.529875
+Training time for this epoch: 39.120521545410156
+Validation started for epoch 1
+Validation completed for epoch 1
+Validation accuracy for epoch 1: 0.54875
+Validation time for this epoch: 0.452411413192749
+====Testing on Test Data ====
+Test accuracy: 0.01125
+Test Time: 0.39815545082092285
+
+hidden size = 300
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.530625
+Training time for this epoch: 155.59098482131958
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.530625
+Training time for this epoch: 155.59098482131958
+Validation started for epoch 1
+Validation completed for epoch 1
+Validation accuracy for epoch 1: 0.5325
+Validation time for this epoch: 2.14056658744812
+====Testing on Test Data ====
+Test accuracy: 0.01
+Test Time: 2.066376209259033
+
+hidden size = 2000
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.532875
+Training time for this epoch: 1469.1059176921844
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.532875
+Training time for this epoch: 1469.1059176921844
+Validation started for epoch 1
+Validation completed for epoch 1
+Validation accuracy for epoch 1: 0.53125
+Validation time for this epoch: 11.803210735321045
+====Testing on Test Data ====
+Test accuracy: 0.011875
+Test Time: 12.122113227844238
+
+hidden size = 500
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.5305
+Training time for this epoch: 282.9417383670807
+Training completed for epoch 1
+Training accuracy for epoch 1: 0.5305
+Training time for this epoch: 282.9417383670807
+Validation started for epoch 1
+Validation completed for epoch 1
+Validation accuracy for epoch 1: 0.535
+Validation time for this epoch: 3.0755808353424072
+====Testing on Test Data ====
+Test accuracy: 0.0125
+Test Time: 2.9580368995666504
+
+======================================================
+
+hidden dim = 10
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1
+Training completed for epoch 1
+Training loss for epoch 1: 0.7251971960067749
+Training accuracy for epoch 1: 0.513
+Training time for this epoch: 3.9029197692871094
+Validation started for epoch 1
+Validation completed for epoch 1
+Validation loss for epoch 1: 1.4186662435531616
+Validation accuracy for epoch 1: 0.55875
+Validation time for this epoch: 0.15695691108703613
+====Testing on Test Data ====
+Test accuracy: 0.0025
+Test Time: 0.1092066764831543
+
+hidden dim = 100
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1
+Training completed for epoch 1
+Training loss for epoch 1: 0.7064794301986694
+Training accuracy for epoch 1: 0.529875
+Training time for this epoch: 40.31668186187744
+Validation started for epoch 1
+Validation completed for epoch 1
+Validation loss for epoch 1: 1.337359070777893
+Validation accuracy for epoch 1: 0.54875
+Validation time for this epoch: 0.4870576858520508
+====Testing on Test Data ====
+Test accuracy: 0.01125
+Test Time: 0.423994779586792
+
+hidden dim = 500
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1
+Training completed for epoch 1
+Training loss for epoch 1: 0.7579283714294434
+Training accuracy for epoch 1: 0.5305
+Training time for this epoch: 289.779513835907
+Validation started for epoch 1
+Validation completed for epoch 1
+Validation loss for epoch 1: 1.3407974243164062
+Validation accuracy for epoch 1: 0.535
+Validation time for this epoch: 2.923693895339966
+====Testing on Test Data ====
+Test accuracy: 0.0125
+Test Time: 2.8576362133026123
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1
+========== Loading data ==========
+========== Vectorizing data ==========
+========== Training for 1 epochs ==========
+Training started for epoch 1

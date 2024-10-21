@@ -31,16 +31,19 @@ class RNN(nn.Module):
 
     def forward(self, inputs):
         # [to fill] obtain hidden layer representation (https://pytorch.org/docs/stable/generated/torch.nn.RNN.html)
-        hidden_layer = self.rnn(inputs)
+        _, h0 = self.rnn(inputs)
         # [to fill] obtain output layer representations
-        output = self.W(hidden_layer[1])
+        output, _ = self.rnn(inputs, h0)
         # [to fill] sum over output 
-        summ = output.sum(dim=0)
-        
+        sum_out = output.sum(dim=1)
         # [to fill] obtain probability dist.
-        predicted_vector = self.softmax(summ)
+        predicted_vector = self.softmax(sum_out)
         return predicted_vector
 
+#output, hidden_layer = self.rnn(inputs)
+#summed_outputs = output.sum(dim=1)
+#logits = self.W(summed_outputs)
+#predicted_vector = self.softmax(logits)
 
 def load_data(train_data, val_data):
     with open(train_data) as training_f:
@@ -56,6 +59,16 @@ def load_data(train_data, val_data):
         val.append((elt["text"].split(),int(elt["stars"]-1)))
     return tra, val
 
+#load in testing data
+def testing_data(test_data):
+    with open(test_data) as test_f:
+        test = json.load(test_f)
+    
+    te = []
+    for elt in test:
+        te.append((elt["text"].split(), int(elt["stars"]-1)))
+    #print(len(te))
+    return te
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -66,117 +79,149 @@ if __name__ == "__main__":
     parser.add_argument("--test_data", default = "to fill", help = "path to test data")
     parser.add_argument('--do_train', action='store_true')
     args = parser.parse_args()
+    with open("results/tests.out", "a") as f_out:
 
-    print("========== Loading data ==========")
-    train_data, valid_data = load_data(args.train_data, args.val_data) # X_data is a list of pairs (document, y); y in {0,1,2,3,4}
-    
-    # Think about the type of function that an RNN describes. To apply it, you will need to convert the text data into vector representations.
-    # Further, think about where the vectors will come from. There are 3 reasonable choices:
-    # 1) Randomly assign the input to vectors and learn better embeddings during training; see the PyTorch documentation for guidance
-    # 2) Assign the input to vectors using pretrained word embeddings. We recommend any of {Word2Vec, GloVe, FastText}. Then, you do not train/update these embeddings.
-    # 3) You do the same as 2) but you train (this is called fine-tuning) the pretrained embeddings further.
-    # Option 3 will be the most time consuming, so we do not recommend starting with this
+        print("========== Loading data ==========")
+        f_out.write("========== Loading data ==========")
+        train_data, valid_data = load_data(args.train_data, args.val_data) # X_data is a list of pairs (document, y); y in {0,1,2,3,4}
+        test_data = testing_data(args.test_data)
+        # Think about the type of function that an RNN describes. To apply it, you will need to convert the text data into vector representations.
+        # Further, think about where the vectors will come from. There are 3 reasonable choices:
+        # 1) Randomly assign the input to vectors and learn better embeddings during training; see the PyTorch documentation for guidance
+        # 2) Assign the input to vectors using pretrained word embeddings. We recommend any of {Word2Vec, GloVe, FastText}. Then, you do not train/update these embeddings.
+        # 3) You do the same as 2) but you train (this is called fine-tuning) the pretrained embeddings further.
+        # Option 3 will be the most time consuming, so we do not recommend starting with this
 
-    print("========== Vectorizing data ==========")
-    model = RNN(50, args.hidden_dim)  # Fill in parameters
-    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-    #optimizer = optim.Adam(model.parameters(), lr=0.01)
-    #changed from open('./word_embedding.pkl', 'rb')
-    word_embedding = pickle.load(open('./Data_Embedding/word_embedding.pkl', 'rb'))
+        print("========== Vectorizing data ==========")
+        f_out.write("========== Vectorizing data ==========\n")
+        model = RNN(50, args.hidden_dim)  # Fill in parameters
+        #optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+        optimizer = optim.Adam(model.parameters(), lr=0.01)
+        #changed from open('./word_embedding.pkl', 'rb')
+        word_embedding = pickle.load(open('./Data_Embedding/word_embedding.pkl', 'rb'))
 
-    stopping_condition = False
-    epoch = 0
+        stopping_condition = False
+        epoch = 0
 
-    last_train_accuracy = 0
-    last_validation_accuracy = 0
+        last_train_accuracy = 0
+        last_validation_accuracy = 0
 
-    while not stopping_condition:
-        random.shuffle(train_data)
-        model.train()
-        # You will need further code to operationalize training, ffnn.py may be helpful
-        print("Training started for epoch {}".format(epoch + 1))
-        train_data = train_data
-        correct = 0
-        total = 0
-        minibatch_size = 16
-        N = len(train_data)
+        while not stopping_condition:
+            random.shuffle(train_data)
+            model.train()
+            # You will need further code to operationalize training, ffnn.py may be helpful
+            print("Training started for epoch {}".format(epoch + 1))
+            f_out.write("Training started for epoch {}\n".format(epoch + 1))
+            train_data = train_data
+            correct = 0
+            total = 0
+            minibatch_size = 16
+            N = len(train_data)
 
-        loss_total = 0
-        loss_count = 0
-        for minibatch_index in tqdm(range(N // minibatch_size)):
-            optimizer.zero_grad()
-            loss = None
-            for example_index in range(minibatch_size):
-                input_words, gold_label = train_data[minibatch_index * minibatch_size + example_index]
+            loss_total = 0
+            loss_count = 0
+            for minibatch_index in tqdm(range(N // minibatch_size)):
+                optimizer.zero_grad()
+                loss = None
+                for example_index in range(minibatch_size):
+                    input_words, gold_label = train_data[minibatch_index * minibatch_size + example_index]
+                    input_words = " ".join(input_words)
+
+                    # Remove punctuation
+                    input_words = input_words.translate(input_words.maketrans("", "", string.punctuation)).split()
+
+                    # Look up word embedding dictionary
+                    vectors = [word_embedding[i.lower()] if i.lower() in word_embedding.keys() else word_embedding['unk'] for i in input_words ]
+
+                    # Transform the input into required shape
+                    vectors = torch.tensor(vectors).view(len(vectors), 1, -1)
+                    output = model(vectors)
+
+                    # Get loss
+                    example_loss = model.compute_Loss(output.view(1,-1), torch.tensor([gold_label]))
+
+                    # Get predicted label
+                    predicted_label = torch.argmax(output)
+
+                    correct += int(predicted_label == gold_label)
+                    # print(predicted_label, gold_label)
+                    total += 1
+                    if loss is None:
+                        loss = example_loss
+                    else:
+                        loss += example_loss
+
+                loss = loss / minibatch_size
+                loss_total += loss.data
+                loss_count += 1
+                loss.backward()
+                optimizer.step()
+            print(loss)
+            print("Training completed for epoch {}".format(epoch + 1))
+            print("Training accuracy for epoch {}: {}".format(epoch + 1, correct / total))
+            f_out.write("Training completed for epoch {}\n".format(epoch + 1))
+            f_out.write("Training accuracy for epoch {}: {}\n".format(epoch + 1, correct / total))
+            trainning_accuracy = correct/total
+
+
+            model.eval()
+            correct = 0
+            total = 0
+            random.shuffle(valid_data)
+            print("Validation started for epoch {}".format(epoch + 1))
+            f_out.write("Validation started for epoch {}\n".format(epoch + 1))
+            valid_data = valid_data
+
+            for input_words, gold_label in tqdm(valid_data):
                 input_words = " ".join(input_words)
-
-                # Remove punctuation
                 input_words = input_words.translate(input_words.maketrans("", "", string.punctuation)).split()
+                vectors = [word_embedding[i.lower()] if i.lower() in word_embedding.keys() else word_embedding['unk'] for i
+                        in input_words]
 
-                # Look up word embedding dictionary
-                vectors = [word_embedding[i.lower()] if i.lower() in word_embedding.keys() else word_embedding['unk'] for i in input_words ]
-
-                # Transform the input into required shape
                 vectors = torch.tensor(vectors).view(len(vectors), 1, -1)
                 output = model(vectors)
-
-                # Get loss
-                example_loss = model.compute_Loss(output.view(1,-1), torch.tensor([gold_label]))
-
-                # Get predicted label
                 predicted_label = torch.argmax(output)
-
                 correct += int(predicted_label == gold_label)
-                # print(predicted_label, gold_label)
                 total += 1
-                if loss is None:
-                    loss = example_loss
-                else:
-                    loss += example_loss
+                # print(predicted_label, gold_label)
+            print("Validation completed for epoch {}".format(epoch + 1))
+            print("Validation accuracy for epoch {}: {}".format(epoch + 1, correct / total))
+            f_out.write("Validation completed for epoch {}\n".format(epoch + 1))
+            f_out.write("Validation accuracy for epoch {}: {}\n".format(epoch + 1, correct / total))
+            validation_accuracy = correct/total
 
-            loss = loss / minibatch_size
-            loss_total += loss.data
-            loss_count += 1
-            loss.backward()
-            optimizer.step()
-        print(loss_total/loss_count)
-        print("Training completed for epoch {}".format(epoch + 1))
-        print("Training accuracy for epoch {}: {}".format(epoch + 1, correct / total))
-        trainning_accuracy = correct/total
+            if validation_accuracy < last_validation_accuracy and trainning_accuracy > last_train_accuracy:
+                stopping_condition=True
+                print("Training done to avoid overfitting!")
+                print("Best validation accuracy is:", last_validation_accuracy)
+                f_out.write("Training done to avoid overfitting!\n")
+                #f_out.write("Best validation accuracy is:", last_validation_accuracy)
+            else:
+                last_validation_accuracy = validation_accuracy
+                last_train_accuracy = trainning_accuracy
 
-
-        model.eval()
+            epoch += 1
+            if epoch == 10:
+                stopping_condition = True
+        
         correct = 0
         total = 0
-        random.shuffle(valid_data)
-        print("Validation started for epoch {}".format(epoch + 1))
-        valid_data = valid_data
-
+        random.shuffle(test_data)
+        print("Test started")
+        f_out.write("Test started\n")
+        test_data = test_data
         for input_words, gold_label in tqdm(valid_data):
             input_words = " ".join(input_words)
             input_words = input_words.translate(input_words.maketrans("", "", string.punctuation)).split()
             vectors = [word_embedding[i.lower()] if i.lower() in word_embedding.keys() else word_embedding['unk'] for i
-                       in input_words]
-
+                in input_words]
             vectors = torch.tensor(vectors).view(len(vectors), 1, -1)
             output = model(vectors)
             predicted_label = torch.argmax(output)
             correct += int(predicted_label == gold_label)
             total += 1
-            # print(predicted_label, gold_label)
-        print("Validation completed for epoch {}".format(epoch + 1))
-        print("Validation accuracy for epoch {}: {}".format(epoch + 1, correct / total))
-        validation_accuracy = correct/total
-
-        if validation_accuracy < last_validation_accuracy and trainning_accuracy > last_train_accuracy:
-            stopping_condition=True
-            print("Training done to avoid overfitting!")
-            print("Best validation accuracy is:", last_validation_accuracy)
-        else:
-            last_validation_accuracy = validation_accuracy
-            last_train_accuracy = trainning_accuracy
-
-        epoch += 1
+        print("==========Test accuracy: {}==========\n".format(correct / total))
+        f_out.write("Test accuracy: {}\n".format(correct / total))
 
 
 
